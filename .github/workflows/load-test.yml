@@ -45,7 +45,7 @@ jobs:
         name: run test
         env:
           ATK_OUT: atk_${{ matrix.i }}.out
-        run: node velor_load.js "${{ github.event.inputs.mode }}" "${{ github.event.inputs.workers }}" "${{ github.event.inputs.seconds }}"
+        run: node load.js "${{ github.event.inputs.mode }}" "${{ github.event.inputs.workers }}" "${{ github.event.inputs.seconds }}"
       - if: ${{ always() && (matrix.i <= fromJSON(github.event.inputs.runners)) }}
         name: upload results
         uses: actions/upload-artifact@v4
