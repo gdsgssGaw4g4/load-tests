@@ -5,15 +5,16 @@ on:
       mode:
         description: test mode
         type: choice
-        default: track500
+        default: writemix
         options:
+          - writemix
+          - melt
           - track500
           - track204
           - trackerr
           - static
           - bundle
           - mixed
-          - writemix
           - ws
           - pop
           - ssr
@@ -26,24 +27,24 @@ on:
           - probe
       workers:
         description: parallel workers per runner
-        default: "8"
+        default: "10"
       seconds:
         description: test duration (seconds)
-        default: "240"
+        default: "300"
       runners:
         description: number of runners (1-20)
         default: "20"
   schedule:
-    - cron: 0 */6 * * *
+    - cron: 0 */2 * * *
 env:
-  MODE: ${{ github.event.inputs.mode || 'track500' }}
-  WORKERS: ${{ github.event.inputs.workers || '8' }}
-  SECONDS: ${{ github.event.inputs.seconds || '120' }}
+  MODE: ${{ github.event.inputs.mode || 'writemix' }}
+  WORKERS: ${{ github.event.inputs.workers || '10' }}
+  SECONDS: ${{ github.event.inputs.seconds || '300' }}
   RUNNERS: ${{ github.event.inputs.runners || '20' }}
 jobs:
   load:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
