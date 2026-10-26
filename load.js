@@ -95,6 +95,11 @@ function pick(i){
     case 'static': return {path:'/robots.txt',method:'GET'};
     case 'favicon': return {path:'/favicon.png',method:'GET'};
     case 'root': return {path:'/',method:'GET'};
+    case 'etk':{ const c=i%5;
+      if(c<2)return{path:'/',method:'GET'};
+      if(c<3)return{path:'/favicon.ico',method:'GET'};
+      if(c<4)return{path:'/manifest.json',method:'GET'};
+      return{path:'/apple-touch-icon.png',method:'GET'}; }
     case 'ssr':    return {path:'/',method:'GET'};
     case 'ssr2':   return {path:'/leaderboard',method:'GET'};
     case 'bundle': return {path:'/assets/index-CYtIz3va.js',method:'GET',
