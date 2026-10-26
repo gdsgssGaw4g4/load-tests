@@ -1,0 +1,15 @@
+name: azwatch
+on:
+  workflow_dispatch:
+jobs:
+  aw:
+    runs-on: ubuntu-latest
+    steps:
+      - name: probe velor from azure
+        run: |
+          for i in 1 2 3 4 5; do
+            c=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://velor.win/api/health || echo TIMEOUT)
+            m=$(curl -s -D - -o /dev/null --max-time 10 https://velor.win/ | grep -i cf-mitigated || echo none)
+            echo "try$i code=$c mitigated=$m"
+            sleep 3
+          done
