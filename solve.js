@@ -6,11 +6,11 @@ function doh(host,type){return new Promise(res=>{
   const req=https.get({host:'1.1.1.1',port:443,path:'/dns-query?name='+encodeURIComponent(host)+'&type='+type,headers:{accept:'application/dns-json'},servername:'cloudflare-dns.com'},r=>{let b='';r.on('data',c=>b+=c);r.on('end',()=>{try{const j=JSON.parse(b);const want=type==='AAAA'?28:1;const a=(j.Answer||[]).filter(x=>x.type===want);res(a[0]?a[0].data:null);}catch(e){res(null);}});});
   req.setTimeout(4000,()=>{req.destroy();res(null);}); req.on('error',()=>res(null));
 });}
-async function pierceClick(page){ return await page.evaluate(()=>{ let hits=[]; function walk(root){ const els=root.querySelectorAll('*'); for(const el of els){ if(el.shadowRoot) walk(el.shadowRoot); if(el.tagName==='INPUT'||(String(el.className).match&&String(el.className).match(/cb-lb|checkbox|mark/))){ try{ el.click(); hits.push('c'); }catch(e){} } } } walk(document); return hits.length; }).catch(()=>0); }
+async function pierceClick(page){ return await page.evaluate(()=>{ let hits=0; function walk(root){ for(const el of root.querySelectorAll('*')){ if(el.shadowRoot) walk(el.shadowRoot); if(el.tagName==='INPUT'||String(el.className).match&&/cb-lb|checkbox|mark/.test(String(el.className))){ try{ el.click(); hits++; }catch(e){} } } } walk(document); return hits; }).catch(()=>0); }
 (async()=>{
   L('start');
   const puppeteer=require('puppeteer-core');
-  const EXES=['/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/opt/google/chrome/chrome','C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'];
+  const EXES=['/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/opt/google/chrome/chrome'];
   const exe=EXES.find(p=>fs.existsSync(p));
   if(!exe){L('no chrome');process.exit(1);} L('chrome: '+exe);
   const control=(await doh('challenges.cloudflare.com','A'))||'104.18.94.41';
@@ -23,7 +23,7 @@ async function pierceClick(page){ return await page.evaluate(()=>{ let hits=[]; 
   await page.goto('https://velor.win/',{waitUntil:'domcontentloaded',timeout:40000}).catch(e=>L('goto err '+e.message));
   L('goto done');
   let cleared=false,title='';
-  for(let i=0;i<240;i++){
+  for(let i=0;i<180;i++){
     await new Promise(r=>setTimeout(r,1000));
     try{title=await page.title();}catch(e){}
     if(i%15===0)L('tick '+i+' "'+title+'"');
