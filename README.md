@@ -1,4 +1,4 @@
-# velor-tests
+# load-tests
 
 Remote load tests for velor.win, powered by GitHub Actions. Each runner is a separate machine with its own IP address, so the site's per-IP rate limits are multiplied (20 runners = 20 fresh buckets).
 
@@ -12,7 +12,7 @@ Stop: Actions -> load-test -> Cancel workflow.
 
 ## Files
 
-- velor_load.js - the load tester (Node 18+, no dependencies)
+- load.js - the load tester (Node 18+, no dependencies)
 - .github/workflows/load-test.yml - the 20-runner workflow
 
 ## Modes
