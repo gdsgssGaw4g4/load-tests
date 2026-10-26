@@ -80,3 +80,4 @@ jobs:
           path: |
             atk_*.out
             cf_cookie.txt
+            step.log
