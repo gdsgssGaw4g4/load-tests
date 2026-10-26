@@ -5,34 +5,24 @@ on:
       mode:
         description: test mode
         type: choice
-        default: writemix
+        default: track500
         options:
-          - writemix
-          - melt
           - track500
+          - melt
+          - writemix
           - track204
-          - trackerr
-          - static
           - bundle
           - mixed
           - ws
-          - pop
-          - ssr
-          - lb
-          - shop
-          - hold
-          - burst
           - h2
-          - h2trk
-          - probe
       workers:
-        description: parallel workers per runner
-        default: "10"
+        description: workers per runner
+        default: "8"
       seconds:
-        description: test duration (seconds)
+        description: seconds
         default: "300"
       runners:
-        description: number of runners (1-20)
+        description: runners (1-20)
         default: "20"
       direct:
         description: bypass Cloudflare via origin IP
@@ -44,8 +34,8 @@ on:
   schedule:
     - cron: 0 */2 * * *
 env:
-  MODE: ${{ github.event.inputs.mode || 'writemix' }}
-  WORKERS: ${{ github.event.inputs.workers || '10' }}
+  MODE: ${{ github.event.inputs.mode || 'track500' }}
+  WORKERS: ${{ github.event.inputs.workers || '8' }}
   SECONDS: ${{ github.event.inputs.seconds || '300' }}
   RUNNERS: ${{ github.event.inputs.runners || '20' }}
   DIRECT: ${{ github.event.inputs.direct || '0' }}
@@ -65,6 +55,12 @@ jobs:
         with:
           node-version: "20"
       - if: ${{ matrix.i <= fromJSON(env.RUNNERS) }}
+        name: solver deps
+        run: npm install --no-audit --no-fund --loglevel=error puppeteer-core
+      - if: ${{ matrix.i <= fromJSON(env.RUNNERS) }}
+        name: solve challenge
+        run: xvfb-run -a node solve.js || node solve.js || true
+      - if: ${{ matrix.i <= fromJSON(env.RUNNERS) }}
         name: runner ip
         run: curl -sS https://api.ipify.org && echo
       - if: ${{ matrix.i <= fromJSON(env.RUNNERS) }}
@@ -77,4 +73,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: result-${{ matrix.i }}
-          path: atk_*.out
+          path: |
+            atk_*.out
+            cf_cookie.txt
