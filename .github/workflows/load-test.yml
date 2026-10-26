@@ -17,15 +17,18 @@ on:
           - h2
       workers:
         description: workers per runner
-        default: "8"
+        default: "1"
       seconds:
         description: seconds
-        default: "300"
+        default: "3600"
       runners:
-        description: runners (1-20)
+        description: runners
         default: "20"
-      pace:`n        description: ms between requests per worker`n        default: "2500"`n      direct:
-        description: bypass Cloudflare via origin IP
+      pace:
+        description: ms between requests per worker
+        default: "2200"
+      direct:
+        description: bypass via origin IP
         type: choice
         default: "0"
         options:
@@ -35,10 +38,11 @@ on:
     - cron: 0 */2 * * *
 env:
   MODE: ${{ github.event.inputs.mode || 'track500' }}
-  WORKERS: ${{ github.event.inputs.workers || '8' }}
-  SECONDS: ${{ github.event.inputs.seconds || '300' }}
+  WORKERS: ${{ github.event.inputs.workers || '1' }}
+  SECONDS: ${{ github.event.inputs.seconds || '3600' }}
   RUNNERS: ${{ github.event.inputs.runners || '20' }}
-  PACE: ${{ github.event.inputs.pace || "2500" }}`n  DIRECT: ${{ github.event.inputs.direct || '0' }}
+  PACE: ${{ github.event.inputs.pace || '2200' }}
+  DIRECT: ${{ github.event.inputs.direct || '0' }}
 jobs:
   load:
     runs-on: ubuntu-latest
