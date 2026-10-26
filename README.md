@@ -25,3 +25,8 @@ Each artifact contains a summary: status codes, first-429 index, health line, pi
 - Public repo = unlimited Actions minutes; the free plan runs 20 jobs at once (exactly this matrix).
 - Runners start staggered by the queue, so the load ramps over a minute or two.
 - The runner IP is printed at the top of each job log as proof of separate buckets.
+## Schedule
+
+- GitHub: runs automatically 4x/day (cron `0 */6 * * *`, UTC) with defaults (runners 20, workers 8, seconds 120). Edit that single cron line to change. GitHub cron can start a few minutes late; scheduled workflows pause after 60 days of repo inactivity (any push or manual run re-enables).
+- Local PC: `pc-wave.ps1` fires a wave straight from this computer. Example hourly task: `schtasks /Create /TN pc-load-wave /SC HOURLY /TR "powershell.exe -NoProfile -ExecutionPolicy Bypass -File <path>\pc-wave.ps1" /F`
+- Cloud wave from the PC: `pc-dispatch.ps1` pokes GitHub to run the 20-runner wave (PC only needs to be online for a second).
