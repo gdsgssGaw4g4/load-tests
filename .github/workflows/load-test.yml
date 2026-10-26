@@ -24,7 +24,7 @@ on:
       runners:
         description: runners (1-20)
         default: "20"
-      direct:
+      pace:`n        description: ms between requests per worker`n        default: "2500"`n      direct:
         description: bypass Cloudflare via origin IP
         type: choice
         default: "0"
@@ -38,7 +38,7 @@ env:
   WORKERS: ${{ github.event.inputs.workers || '8' }}
   SECONDS: ${{ github.event.inputs.seconds || '300' }}
   RUNNERS: ${{ github.event.inputs.runners || '20' }}
-  DIRECT: ${{ github.event.inputs.direct || '0' }}
+  PACE: ${{ github.event.inputs.pace || "2500" }}`n  DIRECT: ${{ github.event.inputs.direct || '0' }}
 jobs:
   load:
     runs-on: ubuntu-latest
@@ -67,7 +67,7 @@ jobs:
         name: run test
         env:
           ATK_OUT: atk_${{ matrix.i }}.out
-        run: ORIGIN_DIRECT="$DIRECT" node load.js "$MODE" "$WORKERS" "$SECONDS"
+        run: ORIGIN_DIRECT="$DIRECT" PACE_MS="$PACE" node load.js "$MODE" "$WORKERS" "$SECONDS"
       - if: ${{ always() && (matrix.i <= fromJSON(env.RUNNERS)) }}
         name: upload results
         uses: actions/upload-artifact@v4
