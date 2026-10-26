@@ -9,11 +9,21 @@ on:
         options:
           - track500
           - track204
+          - trackerr
           - static
           - bundle
           - mixed
+          - writemix
           - ws
+          - pop
+          - ssr
+          - lb
+          - shop
+          - hold
+          - burst
           - h2
+          - h2trk
+          - probe
       workers:
         description: parallel workers per runner
         default: "8"
