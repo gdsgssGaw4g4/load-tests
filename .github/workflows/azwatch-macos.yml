@@ -1,0 +1,16 @@
+name: azwatch-macos
+on: {workflow_dispatch: {}}
+jobs:
+  aw:
+    runs-on: macos-latest
+    steps:
+      - shell: bash
+        run: |
+          for i in 1 2 3 4 5; do
+            ip=$(curl -s --max-time 10 https://api.ipify.org || echo noip)
+            c1=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://velor.win/ || echo TO)
+            c2=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://velor.win/api/health || echo TO)
+            c3=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://velor.win/api/economy/leaderboard || echo TO)
+            echo "try$i ip=$ip root=$c1 health=$c2 lb=$c3"
+            sleep 2
+          done
