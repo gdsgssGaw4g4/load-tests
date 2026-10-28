@@ -1,0 +1,21 @@
+name: robotestmac
+on:
+  workflow_dispatch: {}
+jobs:
+  r:
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: chrome path
+        run: ls "/Applications/Google Chrome.app/Contents/MacOS/" 2>/dev/null || echo no-chrome
+      - name: link chrome
+        run: sudo ln -sf "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" /usr/bin/google-chrome || true
+      - name: npm
+        run: npm i puppeteer-core --no-audit --no-fund >/dev/null 2>&1 || true
+      - name: robot solve
+        run: |
+          echo "egress ip: $(curl -s --max-time 10 https://api.ipify.org)"
+          TARGET_HOST=velor.win SOLVE_HEADLESS=1 timeout 150 node solve.js 2>&1 | tail -20
+      - name: verdict
+        run: if [ -f cf_cookie.txt ]; then echo COOKIE_OK; else echo NO_COOKIE; fi
