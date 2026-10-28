@@ -1,0 +1,19 @@
+name: robotest
+on:
+  workflow_dispatch: {}
+jobs:
+  r:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: chrome present
+        run: which google-chrome google-chrome-stable || true
+      - name: npm
+        run: npm i puppeteer-core --no-audit --no-fund >/dev/null 2>&1 || true
+      - name: robot solve (velor.win)
+        run: |
+          TARGET_HOST=velor.win SOLVE_HEADLESS=1 timeout 150 xvfb-run -a node solve.js 2>&1 | tail -25
+      - name: verdict
+        run: |
+          if [ -f cf_cookie.txt ]; then echo "COOKIE_OBTAINED len=$(wc -c < cf_cookie.txt)"; echo "UA: $(cat cf_ua.txt 2>/dev/null)"; else echo "NO_COOKIE"; fi
