@@ -72,5 +72,8 @@ jobs:
         run: |
           T=$(( ${{ inputs.seconds || '1200' }} + 60 ))
           echo "flood mode=${{ inputs.mode || 'track500' }} from $LOCAL_IP cap=${T}s"
-          timeout $T node velor_atk.js ${{ inputs.mode || 'track500' }} ${{ inputs.workers || '4' }} ${{ inputs.seconds || '1200' }} 2>&1 | tail -8 || true
-          echo "== tail =="; tail -4 atk.out 2>/dev/null || true
+          node velor_atk.js ${{ inputs.mode || 'track500' }} ${{ inputs.workers || '4' }} ${{ inputs.seconds || '1200' }} > live.log 2>&1 &
+          HP=$!
+          while kill -0 $HP 2>/dev/null && [ $SECONDS -lt $T ]; do sleep 20; tail -1 atk.out 2>/dev/null || true; done
+          wait $HP 2>/dev/null || true
+          echo "== final codes =="; grep -E 'sent=|first429' atk.out 2>/dev/null | tail -3; tail -2 atk.out 2>/dev/null
