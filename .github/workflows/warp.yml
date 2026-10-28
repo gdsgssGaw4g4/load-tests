@@ -1,0 +1,30 @@
+name: warptest
+on:
+  workflow_dispatch:
+jobs:
+  w:
+    runs-on: ubuntu-latest
+    steps:
+      - name: warp up
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq wireguard openresolv jq
+          TAG=$(curl -s https://api.github.com/repos/ViRb3/wgcf/releases/latest | jq -r .tag_name)
+          V=${TAG#v}
+          curl -fsSL -o wgcf https://github.com/ViRb3/wgcf/releases/download/$TAG/wgcf_${V}_linux_amd64
+          chmod +x wgcf
+          ./wgcf register --accept-tos
+          ./wgcf generate
+          sudo cp wgcf-profile.conf /etc/wireguard/wgcf.conf
+          sudo wg-quick up wgcf
+      - name: probe egress + velor
+        run: |
+          echo "== egress v4 =="; curl -s4 --max-time 8 ifconfig.co || echo none
+          echo "== egress v6 =="; curl -s6 --max-time 8 ifconfig.co || echo none
+          for i in 1 2 3; do
+            c=$(curl -s -o /dev/null -w "%{http_code}" --max-time 12 https://velor.win/api/health)
+            t=$(curl -s --max-time 12 https://velor.win/api/health | grep -o '<title>[^<]*' | head -1)
+            m=$(curl -s -D - -o /dev/null --max-time 12 https://velor.win/ | grep -i -e cf-mitigated -e '^server' | tr -d '\r' | head -2 | tr '\n' ' ')
+            echo "try$i code=$c title=$t | $m"
+            sleep 2
+          done
